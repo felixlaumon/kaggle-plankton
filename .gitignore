@@ -1,0 +1,11 @@
+._.DS_Store
+.DS_Store
+
+*.pickle
+data/*
+
+*.pyc
+.ipynb_checkpoints/
+
+*.csv
+*.zip
