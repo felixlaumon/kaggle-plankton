@@ -1,15 +1,18 @@
 """Misc utilities"""
 
 import sys
-sys.setrecursionlimit(10000000)
-
 from time import strftime
 import cPickle as pickle
 
-import pandas as pd
 import numpy as np
 
 import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
+
+from sklearn.manifold import TSNE
+
+# Allow pickle to work with very deep recursion
+sys.setrecursionlimit(10000000)
 
 
 def multiclass_log_loss(y_true, y_pred, eps=1e-15):
@@ -74,35 +77,81 @@ def plot_loss(net):
     valid_loss = np.array([i['valid_loss'] for i in net.train_history_])
     plt.figure(figsize=(8, 8))
     plt.title('training loss vs. validation loss')
-    plt.plot(train_loss, label='train')
-    plt.plot(valid_loss, label='valid')
+    plt.plot(train_loss, label='training')
+    plt.plot(valid_loss, label='validation')
     plt.legend()
     plt.xlabel('epoch')
     plt.ylabel('loss')
-    plt.yscale('log')
+    # plt.yscale('log')
+    plt.tight_layout()
     plt.show()
-
-
-def write_submission_csv(net):
-    X_test, _ = load_data(test=True)
-    y_pred = net.predict(X_test)
-    image_id = np.linspace(1, len(y_pred), len(y_pred)).astype(np.int32)
-
-    predictions = []
-    for i in range(len(y_pred)):
-        predictions.append((image_id[i], y_pred[i]))
-
-    submission = pd.DataFrame(predictions, columns=['ImageId', 'Label'])
-    now_str = datetime.now().isoformat().replace(':', '-')
-    filename = 'submission-{}.csv'.format(now_str)
-    submission.to_csv(filename, index=False)
 
 
 def save(x, filename):
     suffix = strftime('%Y-%m-%d-%H-%M-%S')
-    with open('%s-%s.pickle' % (filename, suffix), 'wb') as f:
+    fname = '%s-%s.pickle' % (filename, suffix)
+    with open(fname, 'wb') as f:
         pickle.dump(x, f, -1)
+    return fname
 
 
 def load(filename):
     return pickle.load(open(filename, 'rb'))
+
+
+def vis_layer_weights(layer, size=None):
+    W = layer.W.get_value()
+    b = layer.b.get_value()
+    f = [w + bb for w, bb in zip(W, b)]
+    n = layer.num_filters
+
+    if size is None:
+        n = np.ceil(np.sqrt(n)).astype(np.int)
+        size = (n, n)
+
+    plt.title(layer.__class__.__name__)
+    gs = gridspec.GridSpec(size[0], size[1])
+    for i in range(layer.num_filters):
+        g = gs[i]
+        ax = plt.subplot(g)
+        ax.grid()
+        ax.set_xticks([])
+        ax.set_yticks([])
+        ax.imshow(f[i][0], interpolation='nearest', cmap='gray')
+
+
+def vis_layer_output(layer, input, size=None):
+    output = layer.get_output(input).eval()[0]
+    n = layer.num_filters
+
+    if size is None:
+        n = np.ceil(np.sqrt(n)).astype(np.int)
+        size = (n, n)
+
+    plt.title(layer.__class__.__name__)
+    gs = gridspec.GridSpec(size[0], size[1])
+    for i in range(layer.num_filters):
+        g = gs[i]
+        ax = plt.subplot(g)
+        ax.grid()
+        ax.set_xticks([])
+        ax.set_yticks([])
+        ax.imshow(output[i], interpolation='nearest', cmap='gray')
+
+
+def plot_tsne(layer, input, labels):
+    output = layer.get_output(input).eval()
+    shape = output.shape
+    output = output.reshape(shape[0], -1)
+
+    tsne = TSNE(n_components=2, random_state=0)
+    # bug in tsne https://github.com/scikit-learn/scikit-learn/issues/4124
+    output = np.asfarray(output, dtype='float')
+    xx, yy = tsne.fit_transform(output).transpose()
+
+    plt.title(layer.__class__.__name__)
+    plt.scatter(yy, xx, c=labels, cmap='jet')
+
+
+def vis_hidden_layer_weight(layer, input):
+    pass

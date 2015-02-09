@@ -18,6 +18,7 @@ TRAINING_CSV = './data/train.csv'
 TESTING_CSV = './data/test.csv'
 IMAGE_WIDTH = IMAGE_HEIGHT = 48
 
+
 def load_data(test=False, scale=True, resize_shape=(IMAGE_WIDTH, IMAGE_HEIGHT), random_n=None):
     """Load images"""
     half_pixel_value = 255 / 2
@@ -63,11 +64,11 @@ def load_data(test=False, scale=True, resize_shape=(IMAGE_WIDTH, IMAGE_HEIGHT), 
         print('Resizing all images to {}'.format(resize_shape))
         # result = Parallel(n_jobs=NUM_CORES)(delayed(resize)(x, resize_shape) for x in X)
         # X = np.array(result)
-        X = np.array([scale_retain_aspect(x, resize_shape) for x in X])
+        X = np.array([resize(x, resize_shape) for x in X])
         X = X.reshape(-1, 1, resize_shape[0], resize_shape[1])
 
-    # X = X.astype(np.float32)
-    # y = y.astype(np.int32)
+    X = X.astype(np.float32)
+    y = y.astype(np.int32)
 
     return X, y
 
