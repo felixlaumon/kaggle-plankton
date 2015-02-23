@@ -9,6 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 
+from sklearn.cross_validation import StratifiedShuffleSplit
 from sklearn.manifold import TSNE
 
 # Allow pickle to work with very deep recursion
@@ -43,6 +44,25 @@ def multiclass_log_loss(y_true, y_pred, eps=1e-15):
     actual[np.arange(rows), y_true.astype(int)] = 1
     vsota = np.sum(actual * np.log(predictions))
     return -1.0 / rows * vsota
+
+
+def straified_train_test_split(*arrays, **kwargs):
+    """Like train_test_split but stratified
+    Note that y is a required keyword argument
+    """
+
+    y = kwargs['y']
+    test_size = kwargs.pop('test_size', 0.25)
+    random_state = kwargs.pop('random_state', None)
+    sss = StratifiedShuffleSplit(y, test_size=test_size, random_state=random_state)
+    train, test = iter(sss).next()
+
+    return flatten([[a[train], a[test]] for a in arrays])
+
+
+def flatten(l):
+    """http://stackoverflow.com/questions/952914/making-a-flat-list-out-of-list-of-lists-in-python"""
+    return [item for sublist in l for item in sublist]
 
 
 def plot_sample(ax, x, y, y_pred=None):
@@ -87,7 +107,7 @@ def plot_loss(net):
     plt.show()
 
 
-def save(x, filename):
+def save_to_pickle(x, filename):
     suffix = strftime('%Y-%m-%d-%H-%M-%S')
     fname = '%s-%s.pickle' % (filename, suffix)
     with open(fname, 'wb') as f:
@@ -95,7 +115,7 @@ def save(x, filename):
     return fname
 
 
-def load(filename):
+def load_from_pickle(filename):
     return pickle.load(open(filename, 'rb'))
 
 
