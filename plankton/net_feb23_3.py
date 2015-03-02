@@ -1,25 +1,14 @@
 """
-Feb 23 more filters and stronger dropout
+Feb 23
+with faster affine transform real time augmentation
 
-   637  |    0.703329  |    0.833093  |     0.844238  |     75.57%  |  76.1s
+   679  |    0.758324  |    0.873492  |     0.868152  |     75.43%  |  85.4s
 Early stopping.
-Best valid loss was 0.822885 at epoch 536.
-Finished training. Took 50076 seconds
-Accuracy test score is 0.7680
-Multiclass log loss test score is 0.8015
-Model saved to models/net-0.801522148043-2015-02-23-16-52-27.pickle
-
-Saving prediction to submissions/2015-02-23-19-44-55.csv
-Done. Took 19 seconds
-Ziping up submission...
-  adding: submissions/2015-02-23-19-44-55.csv (deflated 56%)
-Zip file created at submissions/2015-02-23-19-44-55.zip. Took 27 seconds
-80  52 felixlaumon
-Without augmentation 0.822469
-19  Mon, 23 Feb 2015 11:48:15
-
-The correct predict_avg_transformed gives kaggle score of ~0.80
-
+Best valid loss was 0.857900 at epoch 578.
+Finished training. Took 58054 seconds
+Accuracy test score is 0.7602
+Multiclass log loss test score is 0.8314
+Model saved to models/net-0.831406139773-2015-02-25-16-04-26.pickle
 """
 
 import theano
@@ -35,8 +24,7 @@ from net_utils import *
 
 
 class TrainBatchIterator(MeanSubtractMixin,
-                         ScaleBatchIteratorMixin,
-                         RotateBatchIteratorMixin,
+                         AffineTransformIteratorMixin,
                          VerticalFlipBatchIteratorMixin,
                          HorizontalFlipBatchIteratorMixin,
                          ShuffleBatchIteratorMixin,
@@ -47,6 +35,14 @@ class TrainBatchIterator(MeanSubtractMixin,
 class TestBatchIterator(MeanSubtractMixin,
                         BaseBatchIterator):
     pass
+
+
+train_iterator = TrainBatchIterator(batch_size=128,
+                                    vflip_n=2, hflip_n=2, affine_n=2,
+                                    angle_choices=range(0, 360, 90),
+                                    scale_choices=np.linspace(.9, 1.1, 10),
+                                    translate_choices=range(-5, 6))
+test_iterator = TestBatchIterator(batch_size=128)
 
 net = NeuralNet(
     eval_size=0.05,
@@ -63,8 +59,10 @@ net = NeuralNet(
         ('l2d', layers.DropoutLayer),
 
         ('l3c', Conv2DCCLayer),
-        ('l3p', MaxPool2DCCLayer),
         ('l3d', layers.DropoutLayer),
+
+        ('l4c', Conv2DCCLayer),
+        ('l4d', layers.DropoutLayer),
 
         ('l5f', layers.DenseLayer),
         ('l5p', layers.FeaturePoolLayer),
@@ -87,13 +85,15 @@ net = NeuralNet(
     l1p_ds=(2, 2),
     l1d_p=0.2,
 
-    l2c_num_filters=192, l2c_filter_size=(3, 3),
+    l2c_num_filters=128, l2c_filter_size=(3, 3),
     l2p_ds=(2, 2),
     l2d_p=0.3,
 
-    l3c_num_filters=384, l3c_filter_size=(3, 3),
-    l3p_ds=(2, 2),
+    l3c_num_filters=256, l3c_filter_size=(3, 3),
     l3d_p=0.4,
+
+    l4c_num_filters=512, l4c_filter_size=(3, 3),
+    l4d_p=0.4,
 
     l5f_num_units=2048,
     l5p_ds=2,
@@ -112,21 +112,21 @@ net = NeuralNet(
 
     loss=multinomial_nll,
 
-    batch_iterator_train=TrainBatchIterator(batch_size=128),
-    batch_iterator_test=TestBatchIterator(batch_size=128),
+    batch_iterator_train=train_iterator,
+    batch_iterator_test=test_iterator,
 
     update=rmsprop,
-    update_learning_rate=theano.shared(float32(1e-4)),
+    update_learning_rate=theano.shared(float32(5e-5)),
     update_rho=0.9,
     update_epsilon=1e-6,
 
     regression=False,
 
     on_epoch_finished=[
-        StepDecay('update_learning_rate', start=1e-4, stop=1e-7),
+        StepDecay('update_learning_rate', start=5e-5, stop=1e-7),
         EarlyStopping(patience=100)
     ],
 
-    max_epochs=1000,
+    max_epochs=1500,
     verbose=1
 )

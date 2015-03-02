@@ -27,6 +27,11 @@ if __name__ == '__main__':
     print('Loading model definition from %s' % args.net_name)
     net = get_net(args.net_name)
 
+    # Pass mean value of training data to the batch iterator
+    X_train_mean = np.mean(X_train, axis=0)
+    net.batch_iterator_train.mean = X_train_mean
+    net.batch_iterator_test.mean = X_train_mean
+
     t0 = time()
     print('Started training at %s' % t0)
     net.fit(X_train, y_train)
@@ -40,5 +45,5 @@ if __name__ == '__main__':
     print('Accuracy test score is %.4f' % ascore)
     print('Multiclass log loss test score is %.4f' % lscore)
 
-    model_fname = utils.save_to_pickle(net, '%snet-%s' % (args.out_dir, lscore))
+    model_fname = utils.save_to_pickle(net, '%snet-%s-%s' % (args.out_dir, args.net_name, lscore))
     print('Model saved to %s' % model_fname)

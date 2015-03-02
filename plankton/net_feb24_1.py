@@ -1,32 +1,34 @@
 """
-Feb 23 more filters and stronger dropout
-
-   637  |    0.703329  |    0.833093  |     0.844238  |     75.57%  |  76.1s
+Feb 23
+Like net_feb23_1 but with faster affine transform and more filters and DNN (~15s faster)
+   363  |    0.678831  |    0.869813  |     0.780434  |     74.74%  |  69.6s
 Early stopping.
-Best valid loss was 0.822885 at epoch 536.
-Finished training. Took 50076 seconds
-Accuracy test score is 0.7680
-Multiclass log loss test score is 0.8015
-Model saved to models/net-0.801522148043-2015-02-23-16-52-27.pickle
+Best valid loss was 0.846821 at epoch 262.
+Finished training. Took 25459 seconds
+Accuracy test score is 0.7608
+Multiclass log loss test score is 0.8297
+Model saved to models/net-net_feb24_1-0.829659233298-2015-02-26-07-32-43.pickle
 
-Saving prediction to submissions/2015-02-23-19-44-55.csv
+
+scale_choices =  [ 0.85  1.    1.15]
+rotation_choices =  [0, 45, 90, 135, 180, 225, 270, 315]
+translate_y_choices =  [0]
+translate_x_choices =  [0]
+Finished predicting all 130400 images. Took 3417 seconds in total
+Saving prediction to submissions/2015-02-26-09-38-17.csv
 Done. Took 19 seconds
 Ziping up submission...
-  adding: submissions/2015-02-23-19-44-55.csv (deflated 56%)
-Zip file created at submissions/2015-02-23-19-44-55.zip. Took 27 seconds
-80  52 felixlaumon
-Without augmentation 0.822469
-19  Mon, 23 Feb 2015 11:48:15
-
-The correct predict_avg_transformed gives kaggle score of ~0.80
-
+  adding: submissions/2015-02-26-09-38-17.csv (deflated 56%)
+Zip file created at submissions/2015-02-26-09-38-17.zip. Took 25 seconds
+0.984513 on kaggle
 """
 
 import theano
 
 from nolearn.lasagne import NeuralNet
 from lasagne import layers
-from lasagne.layers.cuda_convnet import Conv2DCCLayer, MaxPool2DCCLayer
+# from lasagne.layers.cuda_convnet import Conv2DCCLayer, MaxPool2DCCLayer
+from lasagne.layers.dnn import Conv2DDNNLayer, MaxPool2DDNNLayer
 from lasagne.updates import rmsprop
 from lasagne.nonlinearities import softmax
 from lasagne.objectives import multinomial_nll
@@ -35,8 +37,7 @@ from net_utils import *
 
 
 class TrainBatchIterator(MeanSubtractMixin,
-                         ScaleBatchIteratorMixin,
-                         RotateBatchIteratorMixin,
+                         AffineTransformIteratorMixin,
                          VerticalFlipBatchIteratorMixin,
                          HorizontalFlipBatchIteratorMixin,
                          ShuffleBatchIteratorMixin,
@@ -48,22 +49,30 @@ class TestBatchIterator(MeanSubtractMixin,
                         BaseBatchIterator):
     pass
 
+
+train_iterator = TrainBatchIterator(batch_size=128,
+                                    vflip_n=2, hflip_n=2, affine_n=2,
+                                    angle_choices=range(0, 360, 90),
+                                    scale_choices=np.linspace(.9, 1.1, 10),
+                                    translate_choices=range(0, 1))
+test_iterator = TestBatchIterator(batch_size=128)
+
 net = NeuralNet(
     eval_size=0.05,
 
     layers=[
         ('input', layers.InputLayer),
 
-        ('l1c', Conv2DCCLayer),
-        ('l1p', MaxPool2DCCLayer),
+        ('l1c', Conv2DDNNLayer),
+        ('l1p', MaxPool2DDNNLayer),
         ('l1d', layers.DropoutLayer),
 
-        ('l2c', Conv2DCCLayer),
-        ('l2p', MaxPool2DCCLayer),
+        ('l2c', Conv2DDNNLayer),
+        ('l2p', MaxPool2DDNNLayer),
         ('l2d', layers.DropoutLayer),
 
-        ('l3c', Conv2DCCLayer),
-        ('l3p', MaxPool2DCCLayer),
+        ('l3c', Conv2DDNNLayer),
+        ('l3p', MaxPool2DDNNLayer),
         ('l3d', layers.DropoutLayer),
 
         ('l5f', layers.DenseLayer),
@@ -83,15 +92,15 @@ net = NeuralNet(
 
     input_shape=(None, 1, 48, 48),
 
-    l1c_num_filters=64, l1c_filter_size=(3, 3),
+    l1c_num_filters=128, l1c_filter_size=(3, 3),
     l1p_ds=(2, 2),
     l1d_p=0.2,
 
-    l2c_num_filters=192, l2c_filter_size=(3, 3),
+    l2c_num_filters=256, l2c_filter_size=(3, 3),
     l2p_ds=(2, 2),
     l2d_p=0.3,
 
-    l3c_num_filters=384, l3c_filter_size=(3, 3),
+    l3c_num_filters=512, l3c_filter_size=(3, 3),
     l3p_ds=(2, 2),
     l3d_p=0.4,
 
@@ -112,8 +121,8 @@ net = NeuralNet(
 
     loss=multinomial_nll,
 
-    batch_iterator_train=TrainBatchIterator(batch_size=128),
-    batch_iterator_test=TestBatchIterator(batch_size=128),
+    batch_iterator_train=train_iterator,
+    batch_iterator_test=test_iterator,
 
     update=rmsprop,
     update_learning_rate=theano.shared(float32(1e-4)),
@@ -127,6 +136,6 @@ net = NeuralNet(
         EarlyStopping(patience=100)
     ],
 
-    max_epochs=1000,
+    max_epochs=1500,
     verbose=1
 )

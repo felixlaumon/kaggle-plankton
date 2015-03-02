@@ -26,18 +26,20 @@ class EarlyStopping(object):
 
 
 class StepDecay(object):
-    def __init__(self, name, start=0.03, stop=0.001):
+    def __init__(self, name, start=0.03, stop=0.001, delay=0):
         self.name = name
+        self.delay = delay
         self.start, self.stop = start, stop
         self.ls = None
 
     def __call__(self, net, train_history):
         if self.ls is None:
-            self.ls = np.linspace(self.start, self.stop, net.max_epochs)
+            self.ls = np.linspace(self.start, self.stop, net.max_epochs - self.delay)
 
-        epoch = train_history[-1]['epoch']
-        new_value = float32(self.ls[epoch - 1])
-        getattr(net, self.name).set_value(new_value)
+        epoch = train_history[-1]['epoch'] - self.delay
+        if epoch >= 0:
+            new_value = float32(self.ls[epoch - 1])
+            getattr(net, self.name).set_value(new_value)
 
 
 def float32(x):

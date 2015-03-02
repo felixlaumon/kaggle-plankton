@@ -1,5 +1,9 @@
 """
-Feb 23 4th conv layer with no maxpool at last 2 conv and translate augmentation
+Feb 23 4th conv layer with no maxpool at last 2 conv and add translate augmentation
+training crashed...
+   706  |    0.863500  |    0.874339  |     0.987604  |     73.92%  |  94.6s
+best train = 0.852693
+best valid = 0.851069 74.66%
 """
 
 import theano
