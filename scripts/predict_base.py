@@ -16,7 +16,7 @@ parser.add_argument('model')
 parser.add_argument('--X_test_npy', default='data/X_test_48.npy')
 parser.add_argument('--X_train_npy', default='data/X_train_48.npy')
 parser.add_argument('--X_test_fname_npy', default='data/X_test_fname_48.npy')
-parser.add_argument('--enc', default='data/y_train_encoder-2015-02-21-21-04-01.pickle')
+parser.add_argument('--enc', default='data/y_train_encoder-2015-03-03-21-01-52.pickle')
 parser.add_argument('--submission_sample', default='data/sampleSubmission.csv')
 parser.add_argument('--out_dir', default='submissions/')
 args = parser.parse_args()
@@ -24,7 +24,7 @@ args = parser.parse_args()
 if __name__ == '__main__':
     print('Loading test images from %s and %s' % (args.X_test_npy, args.X_test_fname_npy))
     X = np.load(args.X_test_npy)
-    X_train = np.load(args.X_train.npy)
+    X_train = np.load(args.X_train_npy)
     fname = np.load(args.X_test_fname_npy)
 
     # Subtract test images from mean of training images

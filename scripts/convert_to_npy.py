@@ -51,16 +51,27 @@ if __name__ == '__main__':
     y_enc = LabelEncoder()
     y_train = train_df['label_name']
     y_train = y_enc.fit_transform(y_train).astype(np.int32)
+
+    superclass = np.array(map(lambda str: str.split('_')[0], y_enc.classes_))
+    y_train_superclass = map(lambda x: superclass[x], y_train)
+    y_superclass_enc = LabelEncoder()
+    y_train_superclass = y_superclass_enc.fit_transform(y_train_superclass).astype(np.int32)
+
     print('Took %i seconds' % (time() - t0))
 
     X_train_fname = '%sX_train_%s' % (args.out_dir, args.hw)
     y_train_fname = '%sy_train_%s' % (args.out_dir, args.hw)
+    y_train_superclass_fname = '%sy_train_superclass_%s' % (args.out_dir, args.hw)
     np.save(X_train_fname, X_train)
     np.save(y_train_fname, y_train)
-    print('Saved to %s, %s' % (X_train_fname, y_train_fname))
+    np.save(y_train_superclass_fname, y_train_superclass)
+    print('Saved to %s, %s, %s' % (X_train_fname, y_train_fname, y_train_superclass_fname))
 
     y_enc_fname = utils.save_to_pickle(y_enc, '%sy_train_encoder' % args.out_dir)
     print('Saved y_train encoder to %s' % y_enc_fname)
+
+    y_superclass_enc_fname = utils.save_to_pickle(y_superclass_enc, '%sy_train_superclass_encoder' % args.out_dir)
+    print('Saved y_train_superclass encoder to %s' % y_superclass_enc_fname)
 
     print('Resizing test images to %ix%i...' % (args.hw, args.hw))
     t0 = time()
