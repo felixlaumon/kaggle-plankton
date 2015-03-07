@@ -1,0 +1,6 @@
+{
+    "AWSEBDockerrunVersion": "1",
+    "Image": {
+        "Name": "ubuntu:14.04"
+    }
+}
