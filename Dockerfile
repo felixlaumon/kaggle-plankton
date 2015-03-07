@@ -51,20 +51,7 @@ RUN /bin/bash /anaconda.sh -b -p /opt/conda && \
     rm /anaconda.sh && \
     /opt/conda/bin/conda install --yes conda==3.9.0
 ENV PATH /opt/conda/bin:$PATH
-RUN conda install --yes \
-    scipy \
-    numpy \
-    scikit-learn \
-    scikit-image \
-    pyzmq \
-    nose \
-    readline \
-    pandas \
-    matplotlib \
-    seaborn \
-    dateutil \
-    ipython-notebook \
-    pip
+RUN conda install --yes seaborn
 
 # Actual code
 ADD . /plankton
