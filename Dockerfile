@@ -11,8 +11,7 @@ ENV CUDNN_TAR https://www.dropbox.com/s/1zstyz9n5t7lrtt/cudnn-6.5-linux-R1.tgz?d
 
 RUN cd /opt && wget $CUDA_RUN && chmod +x *.run
 # RUN wget http://repo.continuum.io/miniconda/Miniconda-3.7.0-Linux-x86_64.sh -O miniconda.sh
-RUN echo 'export PATH=/opt/conda/bin:$PATH' > /etc/profile.d/conda.sh && \
-    wget --quiet http://repo.continuum.io/archive/Anaconda-2.1.0-Linux-x86_64.sh && \
+RUN wget --quiet http://repo.continuum.io/archive/Anaconda-2.1.0-Linux-x86_64.sh -O anaconda.sh
 RUN cd /opt && \
     wget $CUDNN_TAR -O cudnn-6.5-linux-R1.tgz && \
     tar xvfz cudnn-6.5-linux-R1.tgz
@@ -48,10 +47,9 @@ ENV LIBRARY_PATH /cudnn-6.5-linux-R1/:$LIBRARY_PATH
 # Install miniconda and some python dependencies
 # RUN bash miniconda.sh -b -p /miniconda && rm miniconda.sh
 # ENV PATH /miniconda/bin:$PATH
-RUN /bin/bash /Anaconda-2.1.0-Linux-x86_64.sh -b -p /opt/conda && \
-    rm /Anaconda-2.1.0-Linux-x86_64.sh && \
-    /opt/conda/bin/conda install --yes conda==3.9.0 && \
-    rm /Anaconda-2.1.0-Linux-x86_64.sh
+RUN /bin/bash /anaconda.sh -b -p /opt/conda && \
+    rm /anaconda.sh && \
+    /opt/conda/bin/conda install --yes conda==3.9.0
 ENV PATH /opt/conda/bin:$PATH
 RUN conda install --yes \
     scipy \

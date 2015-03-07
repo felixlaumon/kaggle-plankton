@@ -39,5 +39,5 @@ docker run -t -i --device /dev/nvidia0:/dev/nvidia0 --device /dev/nvidiactl:/dev
 
 - Clean up untagged build 
 ````
-docker rmi `docker images --filter 'dangling=true' -q --no-trunc`
+docker rmi -f `docker images --filter 'dangling=true' -q --no-trunc`
 ````
