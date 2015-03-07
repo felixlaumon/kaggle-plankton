@@ -1,0 +1,1 @@
+-e git+https://github.com/lisa-lab/pylearn2.git@68cda6b2d25c599bc3eb885c664f23946856c981#egg=pylearn2

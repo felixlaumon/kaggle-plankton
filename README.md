@@ -3,10 +3,11 @@ For http://www.kaggle.com/c/datasciencebowl
 ## TODO
 
 - [ ] Try weight norm
-- [ ] Find out misclassified error across sub-categories to determine if necessary to utilize tree structure -> Implement expert system
+- [X] Find out misclassified error across sub-categories to determine if necessary to utilize tree structure -> Implement expert system
 - [ ] Try batch norm again??
 - [ ] Pixel value jittering
-- [ ] Embarrassingly parallelize transform?
+- [ ] Try ADAM instead of RMSprop
+- [X] Embarrassingly parallelize transform - isn't faster
 - [ ] ipython upstart job doesn't work with DNN (probably because of path)
 - [X] Confusion matrix?
 - [X] See if more neurons is actually necessary (check if the filters are dead or not) - Neuron not dead probably could use more layers or wider nets?
@@ -23,3 +24,20 @@ For http://www.kaggle.com/c/datasciencebowl
 ## Reference
 
 - http://benanne.github.io/2014/04/05/galaxy-zoo.html
+
+## Docker
+
+- Build image by
+````
+docker build -t felixlaumon/plankton .
+````
+
+- Attach to bash by
+````
+docker run -t -i --device /dev/nvidia0:/dev/nvidia0 --device /dev/nvidiactl:/dev/nvidiactl --device /dev/nvidia-uvm:/dev/nvidia-uvm felixlaumon/plankton /bin/bash
+````
+
+- Clean up untagged build 
+````
+docker rmi `docker images --filter 'dangling=true' -q --no-trunc`
+````

@@ -1,0 +1,3 @@
+git+https://github.com/Theano/Theano.git@c0217dd10abbc56051563a3a11400d9d64aac5e0#egg=Theano
+git+https://github.com/benanne/Lasagne.git@4a1cfe984bdcfbf00c6e35fe8e53aec25da02acd#egg=lasagne
+git+https://github.com/dnouri/nolearn.git@a0769e072233424a957462103ec5e73815468545#egg=nolearn
