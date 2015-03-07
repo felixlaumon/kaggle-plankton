@@ -1,4 +1,4 @@
-# Script to train model
+# Script to train base model
 from __future__ import division, print_function
 
 import argparse

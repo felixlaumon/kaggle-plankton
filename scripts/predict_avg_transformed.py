@@ -5,7 +5,8 @@ from __future__ import division, print_function
 import os
 import argparse
 import itertools
-from time import time, strftime
+from time import time
+from time import strftime
 
 import pandas as pd
 import numpy as np
@@ -31,7 +32,7 @@ parser.add_argument('--out_dir', default='submissions/')
 
 parser.add_argument('--scale_lower', default=0.85, type=float)
 parser.add_argument('--scale_upper', default=1.15, type=float)
-parser.add_argument('--scale_step', default=5, type=float)
+parser.add_argument('--scale_step', default=3, type=float)
 
 parser.add_argument('--rotation_lower', default=0, type=int)
 parser.add_argument('--rotation_upper', default=360, type=int)
@@ -57,7 +58,7 @@ def generate_predictions_with_augmented_images(net, X, combinations):
     # TODO optimize by vectorizing the for loop
     # (although X_aug will be very very big and probably won't fit in memory?)
     for i, x in enumerate(X):
-        if i % 2500 == 0:
+        if i % 1000 == 0:
             print('Finished predicting %i images. Took %i seconds so far' % (i, time() - t0))
 
         # Image only has one channel (grayscale)
@@ -67,6 +68,7 @@ def generate_predictions_with_augmented_images(net, X, combinations):
             im_affine_transform(x, scale=scale, rotation=rotation, translate_y=translate_y, translate_x=translate_x)
             for scale, rotation, translate_y, translate_x in combinations
         ])
+
         x_aug = x_aug.reshape(num_combination, 1, args.hw, args.hw).astype(np.float32)
         # TODO do we need to normalize this back to 0?
         pred = net.predict_proba(x_aug).mean(axis=0)
@@ -97,9 +99,6 @@ if __name__ == '__main__':
     net = utils.load_from_pickle(args.model)
     enc = utils.load_from_pickle(args.enc)
     # TODO change batchsize to the num_combinaions and see if faster?
-    # if 'mean' not in net.batch_iterator_test:
-    #     print('Warning: net.batch_iterator_test does not have preset mean value. Using mean from all training data for now')
-    # net.batch_iterator_test.mean = np.mean(X_train, axis=0)
 
     if args.eval_on_train:
         print('Evaluating on training set')

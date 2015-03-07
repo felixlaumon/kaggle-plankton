@@ -1,11 +1,17 @@
 ._.DS_Store
 .DS_Store
 
-*.pickle
+models/*
 data/*
+submissions/*
 
 *.pyc
 .ipynb_checkpoints/
 
 *.csv
 *.zip
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml

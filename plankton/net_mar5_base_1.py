@@ -1,5 +1,13 @@
 """
-Mar 3 - train with superclass label, one more conv layer and less max pool
+Mar 5
+
+   268  |    0.414258  |    0.545030  |     0.760064  |     86.33%  |  121.6s
+Early stopping.
+Best valid loss was 0.465953 at epoch 167.
+Finished training. Took 32607 seconds
+Accuracy test score is 0.8782
+Multiclass log loss test score is 0.4796
+Model saved to models/net-net_mar5_base_1-0.479642310421-2015-03-06-09-20-54.pickle
 
 """
 
@@ -54,7 +62,6 @@ net = NeuralNet(
         ('l3d', layers.DropoutLayer),
 
         ('l4c', Conv2DDNNLayer),
-        ('l4p', MaxPool2DDNNLayer),
         ('l4d', layers.DropoutLayer),
 
         ('l5f', layers.DenseLayer),
@@ -83,7 +90,6 @@ net = NeuralNet(
     l2d_p=0.3,
 
     l3c_num_filters=512, l3c_filter_size=(3, 3),
-    l3p_ds=(2, 2),
     l3d_p=0.4,
 
     l4c_num_filters=768, l4c_filter_size=(3, 3),
@@ -117,7 +123,7 @@ net = NeuralNet(
     regression=False,
 
     on_epoch_finished=[
-        StepDecay('update_learning_rate', start=5e-4, stop=1e-7),
+        StepDecay('update_learning_rate', start=5e-4, stop=1e-8),
         EarlyStopping(patience=100)
     ],
 

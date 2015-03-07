@@ -1,5 +1,13 @@
 """
-Mar 3 - all labels with more conv layers
+Mar 5
+
+   490  |    0.612057  |    0.714939  |     0.856098  |     80.64%  |  119.8s
+Early stopping.
+Best valid loss was 0.675059 at epoch 389.
+Finished training. Took 58723 seconds
+Accuracy test score is 0.7883
+Multiclass log loss test score is 0.7446
+Model saved to models/net-net_mar5_specialist_1-0.74463874041-2015-03-07-03-05-24.pickle
 """
 
 import theano
@@ -53,7 +61,6 @@ net = NeuralNet(
         ('l3d', layers.DropoutLayer),
 
         ('l4c', Conv2DDNNLayer),
-        ('l4p', MaxPool2DDNNLayer),
         ('l4d', layers.DropoutLayer),
 
         ('l5f', layers.DenseLayer),
@@ -82,7 +89,6 @@ net = NeuralNet(
     l2d_p=0.3,
 
     l3c_num_filters=512, l3c_filter_size=(3, 3),
-    l3p_ds=(2, 2),
     l3d_p=0.4,
 
     l4c_num_filters=768, l4c_filter_size=(3, 3),
@@ -116,7 +122,7 @@ net = NeuralNet(
     regression=False,
 
     on_epoch_finished=[
-        StepDecay('update_learning_rate', start=1e-4, stop=1e-8),
+        StepDecay('update_learning_rate', start=1e-4, stop=1e-9),
         EarlyStopping(patience=100)
     ],
 
