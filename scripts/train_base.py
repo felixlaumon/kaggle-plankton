@@ -11,17 +11,18 @@ from plankton import get_net
 
 parser = argparse.ArgumentParser()
 parser.add_argument('net_name')
-parser.add_argument('--X_train_npy', default='data/X_train_48.npy')
-parser.add_argument('--y_superclass_train_npy', default='data/y_train_superclass_48.npy')
-parser.add_argument('--test_size', default=0.05, type=float)
+parser.add_argument('--X_train_train_npy', default='data/X_train_train')
+parser.add_argument('--X_train_test_npy', default='data/X_train_test')
+parser.add_argument('--y_train_train_superclass', default='data/y_train_train_superclass')
+parser.add_argument('--y_train_test_superclass', default='data/y_train_test_superclass')
+parser.add_argument('--hw', default=48, type=int)
 parser.add_argument('--out_dir', default='models/')
 args = parser.parse_args()
 
 if __name__ == '__main__':
     print('Loading training images')
-    X, y = np.load(args.X_train_npy), np.load(args.y_superclass_train_npy)
-
-    X_train, X_test, y_train, y_test = utils.straified_train_test_split(X, y, y=y, test_size=args.test_size, random_state=42)
+    X_train, X_test = np.load('%s_%i.npy' % (args.X_train_train_npy, args.hw)), np.load('%s_%i.npy' % (args.X_train_test_npy, args.hw))
+    y_train, y_test = np.load('%s_%i.npy' % (args.y_train_train_superclass, args.hw)), np.load('%s_%i.npy' % (args.y_train_test_superclass, args.hw))
     print(X_train.shape, X_test.shape, y_train.shape, y_test.shape)
 
     print('Loading model definition from %s' % args.net_name)
