@@ -10,7 +10,6 @@ ENV CUDA_RUN http://developer.download.nvidia.com/compute/cuda/6_5/rel/installer
 ENV CUDNN_TAR https://www.dropbox.com/s/1zstyz9n5t7lrtt/cudnn-6.5-linux-R1.tgz?dl=1
 
 RUN cd /opt && wget $CUDA_RUN && chmod +x *.run
-# RUN wget http://repo.continuum.io/miniconda/Miniconda-3.7.0-Linux-x86_64.sh -O miniconda.sh
 RUN wget --quiet http://repo.continuum.io/archive/Anaconda-2.1.0-Linux-x86_64.sh -O anaconda.sh
 RUN cd /opt && \
     wget $CUDNN_TAR -O cudnn-6.5-linux-R1.tgz && \
@@ -61,3 +60,4 @@ RUN pip install -r requirements2.txt
 
 # Tell theano to use GPU
 ENV THEANO_FLAGS floatX=float32,device=gpu0,nvcc.fastmath=True
+
