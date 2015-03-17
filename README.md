@@ -1,5 +1,13 @@
 For http://www.kaggle.com/c/datasciencebowl
 
+## Requirements
+
+- Nvidia GPU
+- cuDNN
+- https://github.com/benanne/Lasagne
+- https://github.com/dnouri/nolearn/blob/master/nolearn/lasagne.py
+- scikit-learn, scikit-image and other dependencies from Anaconda Python distribution
+
 ## TODO
 
 - [ ] Pixel value jittering
